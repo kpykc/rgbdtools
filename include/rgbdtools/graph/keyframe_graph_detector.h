@@ -28,6 +28,7 @@
 #include <set>
 #include <pcl/registration/transformation_estimation_svd.h>
 #include <opencv2/features2d/features2d.hpp>
+#include <opencv2/nonfree/features2d.hpp>
 
 #include "rgbdtools/types.h"
 #include "rgbdtools/rgbd_keyframe.h"
@@ -100,7 +101,7 @@ class KeyframeGraphDetector
       KeyframeAssociationVector& associations);
 
     // --------------------------------------------
-
+    void setFeaturesTypeForRANSAC(std::string ransac_features_type_);
     void prepareFeaturesForRANSAC(KeyframeVector& keyframes);
     
     void buildAssociationMatrix(
@@ -167,6 +168,8 @@ class KeyframeGraphDetector
     
     double init_surf_threshold_;
     
+    std::string ransac_features_type = "ORB";
+
     /** @brief TREE of BRUTE_FORCE */
     CandidateGenerationMethod candidate_method_;
               

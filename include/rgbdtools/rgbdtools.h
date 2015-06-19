@@ -36,6 +36,7 @@
 #include "rgbdtools/features/gft_detector.h"
 #include "rgbdtools/features/orb_detector.h"
 #include "rgbdtools/features/star_detector.h"
+#include "rgbdtools/features/surf_detector.h"
 
 #include "rgbdtools/registration/motion_estimation.h"
 #include "rgbdtools/registration/motion_estimation_icp_prob_model.h"

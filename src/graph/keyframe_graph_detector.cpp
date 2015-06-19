@@ -53,6 +53,7 @@ KeyframeGraphDetector::KeyframeGraphDetector()
   sac_reestimate_tf_ = false;
   
   // RANSAC params
+  ransac_features_type.assign("ORB");
   ransac_confidence_ = 0.99;
   ransac_max_iterations_ = 1000;
   ransac_sufficient_inlier_ratio_ = 0.75;
@@ -192,41 +193,106 @@ void KeyframeGraphDetector::prepareMatchers(
   }
 }
 
+void KeyframeGraphDetector::setFeaturesTypeForRANSAC(std::string ransac_features_type_)
+{
+  ransac_features_type.assign(ransac_features_type_);
+}
+
 void KeyframeGraphDetector::prepareFeaturesForRANSAC(
   KeyframeVector& keyframes)
 {
   bool upright = true;
-  double orb_threshold = 31;
 
-  if(verbose_) printf("preparing SURF features for matching...\n");  
+  if(ransac_features_type == "SURF")
+  {
+    double min_surf_threshold = 25;
 
-  cv::OrbDescriptorExtractor extractor;
- 
-  for (unsigned int kf_idx = 0; kf_idx < keyframes.size(); kf_idx++)
-  { 
-    RGBDKeyframe& keyframe = keyframes[kf_idx];
-  
-    cv::OrbFeatureDetector detector(400, 1.2f, 8, orb_threshold, 0, 2, 0, 31);
-    keyframe.keypoints.clear();
-    detector.detect(keyframe.rgb_img, keyframe.keypoints);
+    if(verbose_) printf("preparing SURF features for matching...\n");  
 
-    if(verbose_)
-    {
-      printf("[KF %d of %d] %d ORB keypoints detected\n", 
-        (int)kf_idx, (int)keyframes.size(), (int)keyframe.keypoints.size()); 
+    cv::SurfDescriptorExtractor extractor;
+   
+    for (unsigned int kf_idx = 0; kf_idx < keyframes.size(); kf_idx++)
+    { 
+      RGBDKeyframe& keyframe = keyframes[kf_idx];
+     
+      double surf_threshold = init_surf_threshold_;
+
+      while (surf_threshold >= min_surf_threshold)
+      {
+        cv::SurfFeatureDetector detector(surf_threshold, 4, 2, true, upright);
+        keyframe.keypoints.clear();
+        detector.detect(keyframe.rgb_img, keyframe.keypoints);
+      
+        if ((int)keyframe.keypoints.size() < n_keypoints_)
+        {
+          if(verbose_)
+            printf("[KF %d of %d] %d SURF keypoints detected (threshold: %.1f)\n", 
+              (int)kf_idx, (int)keyframes.size(), 
+              (int)keyframe.keypoints.size(), surf_threshold); 
+          
+          surf_threshold /= 2.0;
+        }
+        else
+        {
+          keyframe.keypoints.resize(n_keypoints_);
+          
+          if(verbose_)
+            printf("[KF %d of %d] %d SURF keypoints detected (threshold: %.1f)\n", 
+              (int)kf_idx, (int)keyframes.size(), 
+              (int)keyframe.keypoints.size(), surf_threshold); 
+          
+          break;
+        }
+      }
+
+      if (sac_save_results_)
+      {
+        cv::Mat kp_img;
+        cv::drawKeypoints(keyframe.rgb_img, keyframe.keypoints, kp_img);
+        std::stringstream ss1;
+        ss1 << "kp_" << kf_idx;
+        cv::imwrite(output_path_ + "/" + ss1.str() + ".png", kp_img);
+      }
+
+      extractor.compute(keyframe.rgb_img, keyframe.keypoints, keyframe.descriptors);
+      keyframe.computeDistributions();
     }
+  }
+  else
+  //if (ransac_features_type == "ORB")
+  {
+    double orb_threshold = 31;
 
-    if (sac_save_results_)
-    {
-      cv::Mat kp_img;
-      cv::drawKeypoints(keyframe.rgb_img, keyframe.keypoints, kp_img);
-      std::stringstream ss1;
-      ss1 << "kp_" << kf_idx;
-      cv::imwrite(output_path_ + "/" + ss1.str() + ".png", kp_img);
+    if(verbose_) printf("preparing ORB features for matching...\n");  
+
+    cv::OrbDescriptorExtractor extractor;
+   
+    for (unsigned int kf_idx = 0; kf_idx < keyframes.size(); kf_idx++)
+    { 
+      RGBDKeyframe& keyframe = keyframes[kf_idx];
+    
+      cv::OrbFeatureDetector detector(400, 1.2f, 8, orb_threshold, 0, 2, 0, 31);
+      keyframe.keypoints.clear();
+      detector.detect(keyframe.rgb_img, keyframe.keypoints);
+
+      if(verbose_)
+      {
+        printf("[KF %d of %d] %d ORB keypoints detected\n", 
+          (int)kf_idx, (int)keyframes.size(), (int)keyframe.keypoints.size()); 
+      }
+
+      if (sac_save_results_)
+      {
+        cv::Mat kp_img;
+        cv::drawKeypoints(keyframe.rgb_img, keyframe.keypoints, kp_img);
+        std::stringstream ss1;
+        ss1 << "kp_" << kf_idx;
+        cv::imwrite(output_path_ + "/" + ss1.str() + ".png", kp_img);
+      }
+
+      extractor.compute(keyframe.rgb_img, keyframe.keypoints, keyframe.descriptors);
+      keyframe.computeDistributions();
     }
-
-    extractor.compute(keyframe.rgb_img, keyframe.keypoints, keyframe.descriptors);
-    keyframe.computeDistributions();
   }
 }
 

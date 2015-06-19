@@ -29,18 +29,31 @@ link_directories(${PCL_LIBRARY_DIRS})
 
 # Dependencies - Suitesparse:
 FIND_PACKAGE(SuiteSparse REQUIRED)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # small hack for osx/yosemite
+  set(SUITESPARSE_LIBRARY_DIRS /usr/local/Cellar/suite-sparse/4.2.1/lib/)
+  set(SUITESPARSE_LIBRARIES
+    cxsparse cxsparse cholmod suitesparseconfig
+  )
+endif()
+
 include_directories(${SUITESPARSE_INCLUDE_DIRS})
-set(SUITESPARSE_LIBRARY_DIRS /usr/local/Cellar/suite-sparse/4.2.1/lib/)
 link_directories(${SUITESPARSE_LIBRARY_DIRS})
 
 # Dependencies - G2O:
 # Use script to find g2o. If it's not installed, set G2O_INCLUDE_DIRS manually 
 # using -DG2O_INCLUDE_DIRS.
 find_package(G2O REQUIRED)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # small hack for osx/yosemite
+  set(G2O_LIBRARY_DIRS /usr/local/Cellar/g2o/13./lib/)
+  # set(G2O_LIBRARY_DIRS /Users/kp/kpykc/devel/lib)
+  set(G2O_LIBRARIES
+    g2o_cli g2o_ext_freeglut_minimal g2o_simulator g2o_solver_slam2d_linear g2o_types_icp g2o_types_slam2d g2o_core g2o_interface g2o_solver_csparse g2o_solver_structure_only g2o_types_sba g2o_types_slam3d g2o_csparse_extension g2o_opengl_helper g2o_solver_dense g2o_stuff g2o_types_sclam2d  g2o_parser g2o_solver_pcg g2o_types_data g2o_types_sim3
+  )
+endif()
+
 include_directories(${G2O_INCLUDE_DIR})
-set(G2O_LIBRARY_DIRS /usr/local/Cellar/g2o/13./lib/)
-# include_directories(${G2O_INCLUDE_DIR})
-# set(G2O_LIBRARY_DIRS /Users/kp/kpykc/devel/lib)
 link_directories(${G2O_LIBRARY_DIRS})
 
 ####################################################
@@ -67,12 +80,11 @@ target_link_libraries (rgbdtools
   ${Boost_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
-  #${SUITESPARSE_LIBRARIES}
-  g2o_cli g2o_ext_freeglut_minimal g2o_simulator g2o_solver_slam2d_linear g2o_types_icp g2o_types_slam2d g2o_core g2o_interface g2o_solver_csparse g2o_solver_structure_only g2o_types_sba g2o_types_slam3d g2o_csparse_extension g2o_opengl_helper g2o_solver_dense g2o_stuff g2o_types_sclam2d  g2o_parser g2o_solver_pcg g2o_types_data g2o_types_sim3 cxsparse
-  cxsparse
-  cholmod
-  suitesparseconfig
-  ${G2O_LIBRARIES})
+  ${SUITESPARSE_LIBRARIES}
+  ${G2O_LIBRARIES}
+  # g2o_cli g2o_ext_freeglut_minimal g2o_simulator g2o_solver_slam2d_linear g2o_types_icp g2o_types_slam2d g2o_core g2o_interface g2o_solver_csparse g2o_solver_structure_only g2o_types_sba g2o_types_slam3d g2o_csparse_extension g2o_opengl_helper g2o_solver_dense g2o_stuff g2o_types_sclam2d  g2o_parser g2o_solver_pcg g2o_types_data g2o_types_sim3 
+  # cxsparse cxsparse cholmod suitesparseconfig
+)
   
 install(TARGETS rgbdtools DESTINATION lib)
 install(DIRECTORY include/rgbdtools DESTINATION include)

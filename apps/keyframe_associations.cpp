@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   
   rgbdtools::KeyframeGraphDetector graph_detector;
   graph_detector.setVerbose(true);
-  graph_detector.prepareFeaturesForRANSAC("SURF");
+  graph_detector.setFeaturesTypeForRANSAC("SURF");
   graph_detector.prepareFeaturesForRANSAC(keyframes);
     
   // **** brute force ***********************************************

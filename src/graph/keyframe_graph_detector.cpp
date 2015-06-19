@@ -193,9 +193,9 @@ void KeyframeGraphDetector::prepareMatchers(
   }
 }
 
-void KeyframeGraphDetector::setFeaturesTypeForRANSAC(const char* ransac_features_type_)
+void KeyframeGraphDetector::setFeaturesTypeForRANSAC(const std::string& ransac_features_type_)
 {
-  ransac_features_type.assign(std::string(ransac_features_type_));
+  ransac_features_type.assign(ransac_features_type_);
 }
 
 void KeyframeGraphDetector::prepareFeaturesForRANSAC(

@@ -210,8 +210,8 @@ void KeyframeGraphSolverG2O::addVertex(
   pitch = asinf(-vertex_pose(2,0));
   roll  = atan2f(vertex_pose(2,1),vertex_pose(2,2));
 
-  g2o::Vector3d t(vertex_pose(0,3),vertex_pose(1,3),vertex_pose(2,3));
-  g2o::Quaterniond q;
+  Eigen::Vector3d t(vertex_pose(0,3),vertex_pose(1,3),vertex_pose(2,3));
+  Eigen::Quaterniond q;
   q.x()=sin(roll/2)*cos(pitch/2)*cos(yaw/2)-cos(roll/2)*sin(pitch/2)*sin(yaw/2);
   q.y()=cos(roll/2)*sin(pitch/2)*cos(yaw/2)+sin(roll/2)*cos(pitch/2)*sin(yaw/2);
   q.z()=cos(roll/2)*cos(pitch/2)*sin(yaw/2)-sin(roll/2)*sin(pitch/2)*cos(yaw/2);
@@ -247,8 +247,8 @@ void KeyframeGraphSolverG2O::addEdge(
   pitch = asinf(-relative_pose(2,0));
   roll  = atan2f(relative_pose(2,1),relative_pose(2,2));
 
-  g2o::Vector3d t(relative_pose(0,3),relative_pose(1,3),relative_pose(2,3));
-  g2o::Quaterniond q;
+  Eigen::Vector3d t(relative_pose(0,3),relative_pose(1,3),relative_pose(2,3));
+  Eigen::Quaterniond q;
   q.x()=sin(roll/2)*cos(pitch/2)*cos(yaw/2)-cos(roll/2)*sin(pitch/2)*sin(yaw/2);
   q.y()=cos(roll/2)*sin(pitch/2)*cos(yaw/2)+sin(roll/2)*cos(pitch/2)*sin(yaw/2);
   q.z()=cos(roll/2)*cos(pitch/2)*sin(yaw/2)-sin(roll/2)*sin(pitch/2)*cos(yaw/2);

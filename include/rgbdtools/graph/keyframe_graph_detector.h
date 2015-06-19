@@ -101,7 +101,7 @@ class KeyframeGraphDetector
       KeyframeAssociationVector& associations);
 
     // --------------------------------------------
-    void setFeaturesTypeForRANSAC(std::string ransac_features_type_);
+    void setFeaturesTypeForRANSAC(std::string* ransac_features_type_);
     void prepareFeaturesForRANSAC(KeyframeVector& keyframes);
     
     void buildAssociationMatrix(
